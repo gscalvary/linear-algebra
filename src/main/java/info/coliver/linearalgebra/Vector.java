@@ -18,10 +18,24 @@ public class Vector {
         this.components = components;
     }
 
-    public void assign(Vector vector) {
+    /**
+     * floating point operations: 0
+     * memory operations: 1
+     * @param vector
+     * vector who's components should be copied to this vector
+     */
+    public void copy(Vector vector) {
         this.components = vector.getComponents();
     }
 
+    /**
+     * floating point operations: 0
+     * memory operations: n
+     * @param vector
+     * vector against this vector should be compared
+     * @return
+     * boolean set to true if the passed vector is equal to this vector
+     */
     public boolean equals(Vector vector) {
 
         List<Double> otherComponents = vector.getComponents();
@@ -40,6 +54,14 @@ public class Vector {
         return true;
     }
 
+    /**
+     * floating point operations: (x - 1) * n
+     * memory operations: (x - 1) * n
+     * @param terms
+     * list of vectors to be added
+     * @return
+     * an empty optional or an optional containing the new vector resulting from the addition
+     */
     public static Optional<Vector> add(List<Vector> terms) {
 
         if (terms == null || terms.isEmpty()) {
@@ -54,16 +76,16 @@ public class Vector {
 
         List<Double> sums = new ArrayList<>(size);
 
-        for (int i = 0; i < terms.size(); i++) {
-            if (terms.get(i) == null || terms.get(i).getComponents().size() != size) {
+        for (Vector term : terms) {
+            if (term == null || term.getComponents().size() != size) {
                 return Optional.empty();
             }
-            for (int j = 0; j < terms.get(i).getComponents().size(); j++) {
+            for (int j = 0; j < term.getComponents().size(); j++) {
                 if (sums.size() <= j) {
-                    sums.add(terms.get(i).getComponents().get(j));
+                    sums.add(term.getComponents().get(j));
                 } else {
                     double componentValue = sums.get(j);
-                    componentValue += terms.get(i).getComponents().get(j);
+                    componentValue += term.getComponents().get(j);
                     sums.set(j, componentValue);
                 }
             }
@@ -72,6 +94,14 @@ public class Vector {
         return Optional.of(new Vector(sums));
     }
 
+    /**
+     * floating point operations: (x - 1) * n
+     * memory operations: (x - 1) * n
+     * @param terms
+     * list of vectors to be added
+     * @return
+     * an empty optional or an optional containing the new vector resulting from the subtraction
+     */
     public static Optional<Vector> subtract(List<Vector> terms) {
 
         if (terms == null || terms.isEmpty()) {
@@ -86,16 +116,16 @@ public class Vector {
 
         List<Double> differences = new ArrayList<>(size);
 
-        for (int i = 0; i < terms.size(); i++) {
-            if (terms.get(i) == null || terms.get(i).getComponents().size() != size) {
+        for (Vector term : terms) {
+            if (term == null || term.getComponents().size() != size) {
                 return Optional.empty();
             }
-            for (int j = 0; j < terms.get(i).getComponents().size(); j++) {
+            for (int j = 0; j < term.getComponents().size(); j++) {
                 if (differences.size() <= j) {
-                    differences.add(terms.get(i).getComponents().get(j));
+                    differences.add(term.getComponents().get(j));
                 } else {
                     double componentValue = differences.get(j);
-                    componentValue -= terms.get(i).getComponents().get(j);
+                    componentValue -= term.getComponents().get(j);
                     differences.set(j, componentValue);
                 }
             }
@@ -104,6 +134,16 @@ public class Vector {
         return Optional.of(new Vector(differences));
     }
 
+    /**
+     * floating point operations: n
+     * memory operations: 2n
+     * @param vector
+     * the vector to be scaled
+     * @param factor
+     * the scale factor
+     * @return
+     * an empty optional or an optional containing the new vector resulting from the scaling
+     */
     public static Optional<Vector> scale(Vector vector, double factor) {
 
         if (vector == null) {
@@ -117,6 +157,18 @@ public class Vector {
         return Optional.of(new Vector(products));
     }
 
+    /**
+     * floating point operations: 2n
+     * memory operations: 3n
+     * @param a
+     * the scaling factor
+     * @param x
+     * the vector to be scaled
+     * @param y
+     * the vector to be added to the result of the scaling operation
+     * @return
+     * an empty optional or an optional containing the new vector resulting from the axpy operation
+     */
     public static Optional<Vector> axpy(double a, Vector x, Vector y) {
 
         Optional<Vector> ax = Vector.scale(x, a);
@@ -132,6 +184,16 @@ public class Vector {
         return Vector.add(terms);
     }
 
+    /**
+     * floating point operations: 2n^2
+     * memory operations: 3n^2
+     * @param coefficients
+     * a list of scaling factors
+     * @param vectors
+     * a list of vectors to be combined
+     * @return
+     * an empty optional or an optional containing the new vector resulting from the linear combination
+     */
     public static Optional<Vector> linearCombination(List<Double> coefficients, List<Vector> vectors) {
 
         if (coefficients == null || coefficients.isEmpty() || vectors == null || vectors.isEmpty() || coefficients.size() != vectors.size()) {
@@ -147,12 +209,22 @@ public class Vector {
             if (!term.isPresent()) {
                 return term;
             }
-            result.assign(term.get());
+            result.copy(term.get());
         }
 
         return Optional.of(result);
     }
 
+    /**
+     * floating point operations: 2n
+     * memory operations: 2n
+     * @param x
+     * vector factor
+     * @param y
+     * vector factor
+     * @return
+     * an empty optional or an optional containing the dot product result as a Double
+     */
     public static Optional<Double> dotProduct(Vector x, Vector y) {
 
         if (x == null || y == null || x.getComponents().size() != y.getComponents().size()) {
@@ -168,6 +240,14 @@ public class Vector {
         return Optional.of(result);
     }
 
+    /**
+     * floating point operations: 2n
+     * memory operations: n
+     * @param vector
+     * the vector who's length will be computed
+     * @return
+     * a double representing the length of the given vector
+     */
     public static Optional<Double> length(Vector vector) {
 
         if (vector == null) {
@@ -176,10 +256,6 @@ public class Vector {
 
         Optional<Double> vectorDotProduct = Vector.dotProduct(vector, vector);
 
-        if (!vectorDotProduct.isPresent()) {
-            return vectorDotProduct;
-        }
-
-        return Optional.of(Math.sqrt(vectorDotProduct.get()));
+        return vectorDotProduct.map(aDouble -> Optional.of(Math.sqrt(aDouble))).orElse(vectorDotProduct);
     }
 }

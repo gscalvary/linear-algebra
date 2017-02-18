@@ -75,7 +75,7 @@ class VectorSpec extends Specification {
         assert !unequalVector.equals(vector)
     }
 
-    def 'Vectors may be assigned to one another' () {
+    def 'Vectors may be copied to one another' () {
 
         given: 'a new vector'
         double a = 0.0
@@ -83,8 +83,8 @@ class VectorSpec extends Specification {
         def newComponents = [a,a,b,a]
         def newVector = new Vector(newComponents)
 
-        when: 'assigning that new vector to an older vector'
-        vector.assign(newVector)
+        when: 'copying that new vector to an older vector'
+        vector.copy(newVector)
 
         then: 'the two vectors should be equal.'
         assert vector.equals(newVector)

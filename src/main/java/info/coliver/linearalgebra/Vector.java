@@ -200,9 +200,13 @@ public class Vector {
             return Optional.empty();
         }
 
-        List<Double> initComponents = new ArrayList<>(Arrays.asList(new Double[coefficients.size()]));
-        Collections.fill(initComponents, 0.0);
-        Vector result = new Vector(initComponents);
+        Optional<Vector> init = createZeroVector(coefficients.size());
+
+        if (!init.isPresent()) {
+            return Optional.empty();
+        }
+
+        Vector result = init.get();
 
         for (int i = 0; i < coefficients.size(); i++) {
             Optional<Vector> term = axpy(coefficients.get(i), vectors.get(i), result);
@@ -257,5 +261,37 @@ public class Vector {
         Optional<Double> vectorDotProduct = Vector.dotProduct(vector, vector);
 
         return vectorDotProduct.map(aDouble -> Optional.of(Math.sqrt(aDouble))).orElse(vectorDotProduct);
+    }
+
+    public static Optional<Vector> matrixMultiplication(Vector vector, Matrix matrix) {
+
+        if (vector == null || matrix == null || vector.getComponents().size() != matrix.getComponents().get(0).size()) {
+            return Optional.empty();
+        }
+
+        List<Double> components = new ArrayList<>(vector.getComponents().size());
+
+        for (int i = 0; i < matrix.getComponents().size(); i++) {
+            Optional<Double> component = Vector.dotProduct(vector, new Vector(matrix.getComponents().get(i)));
+
+            if (!component.isPresent()) {
+                return Optional.empty();
+            }
+
+            components.add(component.get());
+        }
+
+        return Optional.of(new Vector(components));
+    }
+
+    private static Optional<Vector> createZeroVector(int size) {
+
+        if (size <= 0) {
+            return Optional.empty();
+        }
+
+        List<Double> initComponents = new ArrayList<>(Arrays.asList(new Double[size]));
+        Collections.fill(initComponents, 0.0);
+        return Optional.of(new Vector(initComponents));
     }
 }

@@ -351,4 +351,62 @@ class VectorSpec extends Specification {
         expect: 'the correct scalar to be returned'
         assert Vector.length(vector).get() == b
     }
+
+    def 'When passing null arguments to Vector matrix multiplication' () {
+
+        expect: 'an empty Optional to be returned'
+        assert Vector.matrixMultiplication(null, null) == Optional.empty()
+    }
+
+    def 'When passing a vector and matrix of unequal size to Vector matrix multiplication' () {
+
+        given:
+        double x0 = 0.0
+        double x1 = 0.0
+        def vectorComponents = [x0, x1]
+        def vector = new Vector(vectorComponents)
+        double x0x0 = 0.0
+        double x0x1 = 0.0
+        double x0x2 = 0.0
+        double x1x0 = 0.0
+        double x1x1 = 0.0
+        double x1x2 = 0.0
+        double x2x0 = 0.0
+        double x2x1 = 0.0
+        double x2x2 = 0.0
+        def matrixComponents = [[x0x0, x0x1, x0x2],[x1x0, x1x1, x1x2],[x2x0, x2x1, x2x2]]
+        def matrix = new Matrix(matrixComponents)
+
+        expect: 'an empty Optional to be returned'
+        assert Vector.matrixMultiplication(vector, matrix) == Optional.empty()
+    }
+
+    def 'When passing a vector and matrix of equal sizes to Vector matrix multiplication' () {
+
+        given:
+        double x0 = 1.0
+        double x1 = 1.0
+        double x2 = 1.0
+        def vectorComponents = [x0, x1, x2]
+        def vector = new Vector(vectorComponents)
+        double x0x0 = 1.0
+        double x0x1 = 2.0
+        double x0x2 = 3.0
+        double x1x0 = 4.0
+        double x1x1 = 5.0
+        double x1x2 = 6.0
+        double x2x0 = 7.0
+        double x2x1 = 8.0
+        double x2x2 = 9.0
+        def matrixComponents = [[x0x0, x0x1, x0x2],[x1x0, x1x1, x1x2],[x2x0, x2x1, x2x2]]
+        def matrix = new Matrix(matrixComponents)
+        double y0 = 6.0
+        double y1 = 15.0
+        double y2 = 24.0
+        vectorComponents = [y0, y1, y2]
+        def resultantVector = new Vector(vectorComponents)
+
+        expect: 'a vector of the correct magnitude and direction to be returned'
+        assert Vector.matrixMultiplication(vector, matrix).get() == resultantVector
+    }
 }

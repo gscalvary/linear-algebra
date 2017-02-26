@@ -263,6 +263,15 @@ public class Vector {
         return vectorDotProduct.map(aDouble -> Optional.of(Math.sqrt(aDouble))).orElse(vectorDotProduct);
     }
 
+    /**
+     * floating point operations: 2m * n
+     * @param vector
+     * the vector who's product will be computed
+     * @param matrix
+     * the matrix against which the vector will be multiplied
+     * @return
+     * the product vector
+     */
     public static Optional<Vector> matrixMultiplication(Vector vector, Matrix matrix) {
 
         if (vector == null || matrix == null || vector.getComponents().size() != matrix.getComponents().get(0).size()) {

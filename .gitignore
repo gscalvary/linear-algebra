@@ -1,6 +1,6 @@
 # Intellij
 *.iml
-Christopher.xml
+.idea
 
 # Gradle
 .gradle

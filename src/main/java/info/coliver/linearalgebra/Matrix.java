@@ -464,4 +464,60 @@ public class Matrix {
 
         return Optional.of(new Matrix(components));
     }
+
+    /**
+     * floating point operations: 2m * n * k
+     * @param a
+     * matrix
+     * @param b
+     * matrix
+     * @return
+     * matrix resulting from the ordered multiplication of matrices a and b
+     */
+    public static Optional<Matrix> matrixMultiplication(Matrix a, Matrix b) {
+
+        if (a == null || b == null) {
+            return Optional.empty();
+        }
+
+        int aHeight = a.getComponents().get(0).size();
+        int aWidth = a.getComponents().size();
+        int bHeight = b.getComponents().get(0).size();
+        int bWidth = b.getComponents().size();
+
+        if (aHeight != bWidth || aWidth != bHeight) {
+            return Optional.empty();
+        }
+
+        List<List<Double>> components = new ArrayList<>();
+
+        for (int i = 0; i < aHeight; i++) {
+            // create a vector out of each row of a
+            List<Double> aRowComponents = new ArrayList<>();
+            for (int j = 0; j < aWidth; j++) {
+                aRowComponents.add(a.getComponents().get(j).get(i));
+            }
+            Vector aRow = new Vector(aRowComponents);
+
+            for (int k = 0; k < bWidth; k++) {
+                // initialize each column of output
+                if (i == 0) {
+                    components.add(new ArrayList<>());
+                }
+
+                // take the dot product of the matrix a row vector by matrix b column vector to get each entry for the
+                // product vector
+                Optional<Double> columnEntry = Vector.dotProduct(aRow, new Vector(b.getComponents().get(k)));
+
+
+                if (columnEntry.isPresent()) {
+                    components.get(k).add(columnEntry.get());
+                } else {
+                    return Optional.empty();
+                }
+            }
+        }
+
+        return Optional.of(new Matrix(components));
+    }
 }

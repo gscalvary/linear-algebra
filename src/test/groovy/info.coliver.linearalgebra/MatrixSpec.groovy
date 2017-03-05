@@ -710,4 +710,48 @@ class MatrixSpec extends Specification {
         expect: 'a matrix of the correct size to be returned'
         assert Matrix.subtract(terms).get().getComponents() == answerMatrix.getComponents()
     }
+
+    def 'When passing a null argument to Matrix multiplication' () {
+
+        expect: 'the return of an empty optional'
+        assert Matrix.matrixMultiplication(null, null) == Optional.empty()
+    }
+
+    def 'When passing matrices of incorrect sizes to Matrix multiplication' () {
+
+        given:
+        double a = 1.0
+        double b = 2.0
+        double c = 0.0
+        def components1 = [[a,b], [a,b]]
+        def matrix1 = new Matrix(components1)
+        def components2 = [[a,b,c], [a,b,c]]
+        def matrix2 = new Matrix(components2)
+
+        expect: 'the return of an empty optional'
+        assert Matrix.matrixMultiplication(matrix1, matrix2) == Optional.empty()
+    }
+
+    def 'When passing matrices of the correct sizes to Matrix multiplication' () {
+
+        given:
+        double c = 2.0
+        double d = -1.0
+        double e = 1.0
+        double f = 0.0
+        double g = 3.0
+        double h = 4.0
+        double i = -2.0
+        double j = 8.0
+        double k = 5.0
+        def components1 = [[c, d, e, d], [f, e, g, e], [e, f, e, e]]
+        def a = new Matrix(components1)
+        def components2 = [[c, f, e], [e, e, f], [c, f, e], [e, e, f]]
+        def b = new Matrix(components2)
+        def answerComponents = [[h, i, g], [j, c, g], [k, e, c]]
+        def answerMatrix = new Matrix(answerComponents)
+
+        expect: 'the return of a matrix with the correct elements'
+        assert Matrix.matrixMultiplication(b, a).get().getComponents() == answerMatrix.getComponents()
+    }
 }

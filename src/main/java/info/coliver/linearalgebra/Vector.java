@@ -264,7 +264,8 @@ public class Vector {
     }
 
     /**
-     * floating point operations: 2m * n
+     * memory operations: n^2
+     * floating point operations: 2n^2
      * @param vector
      * the vector who's product will be computed
      * @param matrix

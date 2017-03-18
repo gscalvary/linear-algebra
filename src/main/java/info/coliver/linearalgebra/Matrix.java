@@ -466,7 +466,8 @@ public class Matrix {
     }
 
     /**
-     * floating point operations: 2m * n * k
+     * memory operations: 4n^2
+     * floating point operations: 2n^3
      * @param a
      * matrix
      * @param b
@@ -497,25 +498,16 @@ public class Matrix {
             for (int j = 0; j < aWidth; j++) {
                 aRowComponents.add(a.getComponents().get(j).get(i));
             }
-            Vector aRow = new Vector(aRowComponents);
+            Vector aRowVector = new Vector(aRowComponents);
 
-            for (int k = 0; k < bWidth; k++) {
-                // initialize each column of output
-                if (i == 0) {
-                    components.add(new ArrayList<>());
-                }
+            // use matrix vector multiplication to compute each output matrix column
+            Optional<Vector> ithColumn = Vector.matrixMultiplication(aRowVector, b);
 
-                // take the dot product of the matrix a row vector by matrix b column vector to get each entry for the
-                // product vector
-                Optional<Double> columnEntry = Vector.dotProduct(aRow, new Vector(b.getComponents().get(k)));
-
-
-                if (columnEntry.isPresent()) {
-                    components.get(k).add(columnEntry.get());
-                } else {
-                    return Optional.empty();
-                }
+            if (!ithColumn.isPresent()) {
+                return Optional.empty();
             }
+
+            components.add(ithColumn.get().getComponents());
         }
 
         return Optional.of(new Matrix(components));

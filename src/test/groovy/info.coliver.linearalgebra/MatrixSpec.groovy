@@ -748,7 +748,7 @@ class MatrixSpec extends Specification {
         def a = new Matrix(components1)
         def components2 = [[c, f, e], [e, e, f], [c, f, e], [e, e, f]]
         def b = new Matrix(components2)
-        def answerComponents = [[h, i, g], [j, c, g], [k, e, c]]
+        def answerComponents = [[h, j, k], [i, c, e], [g, g, c]]
         def answerMatrix = new Matrix(answerComponents)
 
         expect: 'the return of a matrix with the correct elements'

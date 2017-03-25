@@ -1,8 +1,6 @@
 package info.coliver.linearalgebra;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Matrix {
@@ -510,16 +508,15 @@ public class Matrix {
             components.add(ithColumn.get().getComponents());
         }
 
-        return Optional.of(new Matrix(components));
+        return Matrix.transpose(new Matrix(components));
     }
 
     /**
-     * Compute the Gaussian transform of the given matrix such that if the given matrix were to be multiplied by its
-     * Gaussian transform it would be transformed into an equivalent upper triangular matrix.
+     * Compute the Gaussian transform of the given matrix.
      * @param matrix
      * A matrix of size n x n.
      * @return
-     * The Gaussian transformation of the given matrix.
+     * The equivalent upper triangular matrix.
      */
     public static Optional<Matrix> gaussianTransform(Matrix matrix) {
 
@@ -527,27 +524,44 @@ public class Matrix {
             return Optional.empty();
         }
 
-        int size = matrix.getComponents().size();
-        if (size != matrix.getComponents().get(0).size()) {
+        int width = matrix.getComponents().size();
+        int height = matrix.getComponents().get(0).size();
+
+        if (width != height) {
             return Optional.empty();
         }
 
-        Optional<Matrix> transform = Matrix.identity(matrix);
+        Matrix transformedMatrix = new Matrix(matrix.getComponents());
 
-        if (!transform.isPresent()) {
-            return transform;
-        }
+        for (int i = 0; i < height; i++ ) {
 
-        for (int i = 0; i < size - 1; i++ ) {
-            List<Double> newTransformColumn = transform.get().getComponents().get(i);
-            List<Double> matrixColumn = matrix.getComponents().get(i);
-            Double divisor = matrixColumn.get(i);
-            for (int j = i + 1; j < size; j++) {
-                Double dividend = matrixColumn.get(j);
-                matrixColumn.set(j, dividend / divisor * -1);
+            Optional<Matrix> transform = Matrix.identity(matrix);
+
+            if (!transform.isPresent()) {
+                return Optional.empty();
             }
+
+            List<Double> newTransformColumn = transform.get().getComponents().get(i);
+            List<Double> matrixColumn = transformedMatrix.getComponents().get(i);
+
+            Double divisor = matrixColumn.get(i);
+
+            for (int j = i + 1; j < height; j++) {
+                Double dividend = matrixColumn.get(j);
+                newTransformColumn.set(j, dividend / divisor * -1);
+            }
+
+            transform.get().getComponents().set(i, newTransformColumn);
+
+            Optional<Matrix> stepIMatrix = Matrix.matrixMultiplication(transform.get(), transformedMatrix);
+
+            if (!stepIMatrix.isPresent()) {
+                return Optional.empty();
+            }
+
+            transformedMatrix = stepIMatrix.get();
         }
 
-        return transform;
+        return Optional.of(transformedMatrix);
     }
 }

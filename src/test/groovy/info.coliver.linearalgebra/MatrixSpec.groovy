@@ -748,7 +748,7 @@ class MatrixSpec extends Specification {
         def a = new Matrix(components1)
         def components2 = [[c, f, e], [e, e, f], [c, f, e], [e, e, f]]
         def b = new Matrix(components2)
-        def answerComponents = [[h, j, k], [i, c, e], [g, g, c]]
+        def answerComponents = [[h, i, g], [j, c, g], [k, e, c]]
         def answerMatrix = new Matrix(answerComponents)
 
         expect: 'the return of a matrix with the correct elements'
@@ -761,7 +761,7 @@ class MatrixSpec extends Specification {
         assert Matrix.gaussianTransform(null) == Optional.empty()
     }
 
-    def 'When passing a matrix that is not of equal height and width to Matrix Gaussian transform' () {
+    def 'When passing a matrix not of size n x n to Matrix Gaussian transform' () {
 
         given:
         double a = 1.0
@@ -772,7 +772,7 @@ class MatrixSpec extends Specification {
         assert Matrix.gaussianTransform(matrix1) == Optional.empty()
     }
 
-    def 'When passing a matrix of equal height and width to Matrix Gaussian transform' () {
+    def 'When passing compatible arguments to Matrix Gaussian transform' () {
 
         given:
         double a = 0.0
@@ -782,10 +782,10 @@ class MatrixSpec extends Specification {
         double e = 7.0
         def components1 = [[b,d,b], [b,b,e], [c,e,b]]
         def matrix1 = new Matrix(components1)
-        def components2 = [[b,a,a], [a,b,a], [a,a,b]]
+        def components2 = [[b,a,a], [b,-c,a], [c,b,c]]
         def transform = new Matrix(components2)
 
-        expect: 'the return of the correct Gaussian transform'
+        expect: 'the return of the equivalent upper triangular matrix'
         assert Matrix.gaussianTransform(matrix1).get().getComponents() == transform.getComponents()
     }
 }

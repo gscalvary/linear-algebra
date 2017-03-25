@@ -512,4 +512,42 @@ public class Matrix {
 
         return Optional.of(new Matrix(components));
     }
+
+    /**
+     * Compute the Gaussian transform of the given matrix such that if the given matrix were to be multiplied by its
+     * Gaussian transform it would be transformed into an equivalent upper triangular matrix.
+     * @param matrix
+     * A matrix of size n x n.
+     * @return
+     * The Gaussian transformation of the given matrix.
+     */
+    public static Optional<Matrix> gaussianTransform(Matrix matrix) {
+
+        if (matrix == null) {
+            return Optional.empty();
+        }
+
+        int size = matrix.getComponents().size();
+        if (size != matrix.getComponents().get(0).size()) {
+            return Optional.empty();
+        }
+
+        Optional<Matrix> transform = Matrix.identity(matrix);
+
+        if (!transform.isPresent()) {
+            return transform;
+        }
+
+        for (int i = 0; i < size - 1; i++ ) {
+            List<Double> newTransformColumn = transform.get().getComponents().get(i);
+            List<Double> matrixColumn = matrix.getComponents().get(i);
+            Double divisor = matrixColumn.get(i);
+            for (int j = i + 1; j < size; j++) {
+                Double dividend = matrixColumn.get(j);
+                matrixColumn.set(j, dividend / divisor * -1);
+            }
+        }
+
+        return transform;
+    }
 }

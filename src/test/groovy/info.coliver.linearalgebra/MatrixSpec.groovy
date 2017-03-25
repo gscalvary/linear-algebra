@@ -754,4 +754,38 @@ class MatrixSpec extends Specification {
         expect: 'the return of a matrix with the correct elements'
         assert Matrix.matrixMultiplication(b, a).get().getComponents() == answerMatrix.getComponents()
     }
+
+    def 'When passing a null argument to Matrix Gaussian transform' () {
+
+        expect: 'the return of an empty optional'
+        assert Matrix.gaussianTransform(null) == Optional.empty()
+    }
+
+    def 'When passing a matrix that is not of equal height and width to Matrix Gaussian transform' () {
+
+        given:
+        double a = 1.0
+        def components1 = [[a,a], [a,a], [a,a]]
+        def matrix1 = new Matrix(components1)
+
+        expect: 'the return of an empty optional'
+        assert Matrix.gaussianTransform(matrix1) == Optional.empty()
+    }
+
+    def 'When passing a matrix of equal height and width to Matrix Gaussian transform' () {
+
+        given:
+        double a = 0.0
+        double b = 1.0
+        double c = 2.0
+        double d = 3.0
+        double e = 7.0
+        def components1 = [[b,d,b], [b,b,e], [c,e,b]]
+        def matrix1 = new Matrix(components1)
+        def components2 = [[b,a,a], [a,b,a], [a,a,b]]
+        def transform = new Matrix(components2)
+
+        expect: 'the return of the correct Gaussian transform'
+        assert Matrix.gaussianTransform(matrix1).get().getComponents() == transform.getComponents()
+    }
 }

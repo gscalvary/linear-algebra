@@ -71,7 +71,11 @@ public class LinearSystem {
 
             for (int j = i + 1; j < linearSystem.getSize(); j++) {
                 Double dividend = matrixColumn.get(j);
-                newTransformColumn.set(j, dividend / divisor * -1);
+                if (divisor == 0.0) {
+                    newTransformColumn.set(j, 0.0);
+                } else {
+                    newTransformColumn.set(j, dividend / divisor * -1);
+                }
             }
 
             transform.get().getComponents().set(i, newTransformColumn);

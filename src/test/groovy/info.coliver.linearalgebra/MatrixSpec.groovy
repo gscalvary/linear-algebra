@@ -754,4 +754,33 @@ class MatrixSpec extends Specification {
         expect: 'the return of a matrix with the correct elements'
         assert Matrix.matrixMultiplication(b, a).get().getComponents() == answerMatrix.getComponents()
     }
+
+    def 'When passing a null argument to swap rows' () {
+
+        expect: 'the return of an empty optional'
+        assert Matrix.swapRows(null, 0, 1) == Optional.empty()
+    }
+
+    def 'When passing a negative index or equal indices to swap rows' () {
+
+        given:
+        double a = 0.0
+        def matrix = new Matrix([[a,a], [a,a]])
+
+        expect: 'the return of the given matrix'
+        assert Matrix.swapRows(matrix, -1, 0).get().getComponents() == matrix.getComponents()
+        assert Matrix.swapRows(matrix, 0, -1).get().getComponents() == matrix.getComponents()
+        assert Matrix.swapRows(matrix, 0, 0).get().getComponents() == matrix.getComponents()
+    }
+
+    def 'When passing valid arguments to swap rows' () {
+
+        given:
+        double a = 0.0
+        double b = 1.0
+        def matrix = new Matrix([[b,a,a], [a,b,a], [a,a,b]])
+
+        expect: 'the return of the appropriate matrix'
+        assert Matrix.swapRows(matrix, 1, 0).get().getComponents() == [[a,b,a], [b,a,a], [a,a,b]]
+    }
 }

@@ -510,4 +510,30 @@ public class Matrix {
 
         return Matrix.transpose(new Matrix(components));
     }
+
+    public static Optional<Matrix> swapRows(Matrix matrix, int from, int to) {
+
+        if (matrix == null) {
+            return Optional.empty();
+        }
+
+        if (from < 0 || to < 0 || from == to) {
+            return Optional.of(matrix);
+        }
+
+        Optional<Matrix> transposedMatrix = Matrix.transpose(matrix);
+
+        if (!transposedMatrix.isPresent()) {
+            return Optional.of(matrix);
+        }
+
+        List<List<Double>> transposedComponents = transposedMatrix.get().getComponents();
+        List<Double> fromColumn = transposedComponents.get(from);
+        List<Double> toColumn = transposedComponents.get(to);
+
+        transposedComponents.set(to, fromColumn);
+        transposedComponents.set(from, toColumn);
+
+        return Matrix.transpose(new Matrix(transposedComponents));
+    }
 }

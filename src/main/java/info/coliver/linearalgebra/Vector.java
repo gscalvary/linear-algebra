@@ -294,7 +294,14 @@ public class Vector {
         return Optional.of(new Vector(components));
     }
 
-    private static Optional<Vector> createZeroVector(int size) {
+    /**
+     * Create a vector of a given size with all components set to zero.
+     * @param size
+     * the length of the vector being created
+     * @return
+     * the created vector
+     */
+    public static Optional<Vector> createZeroVector(int size) {
 
         if (size <= 0) {
             return Optional.empty();

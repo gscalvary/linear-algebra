@@ -8,6 +8,7 @@ class LinearSystemSpec extends Specification {
     @Shared ls
     @Shared lhs
     @Shared rhs
+    @Shared pivot
 
     def 'Given a null left hand or right hand side ' () {
 
@@ -50,6 +51,37 @@ class LinearSystemSpec extends Specification {
         thrown IllegalArgumentException
     }
 
+    def 'Given pivot and right hand sides of unequal height ' () {
+
+        given:
+        double a = 1.0
+        lhs = new Matrix([[a,a], [a,a]])
+        rhs = new Vector([a,a])
+        pivot = new Vector([a,a,a])
+
+        when:
+        new LinearSystem(lhs, rhs, pivot)
+
+        then: 'an illegal argument exception should be thrown.'
+        thrown IllegalArgumentException
+    }
+
+    def 'When setting the pivot of a system to a pivot of unequal size' () {
+
+        given:
+        double a = 1.0
+        lhs = new Matrix([[a,a], [a,a]])
+        rhs = new Vector([a,a])
+        pivot = new Vector([a,a,a])
+
+        when:
+        LinearSystem ls = new LinearSystem(lhs, rhs)
+        ls.setPivot(pivot)
+
+        then: 'an illegal argument exception should be thrown.'
+        thrown IllegalArgumentException
+    }
+
     def 'Given valid arguments ' () {
 
         given:
@@ -58,10 +90,11 @@ class LinearSystemSpec extends Specification {
         rhs = new Vector([a,a])
 
         when:
-        new LinearSystem(lhs, rhs)
+        LinearSystem ls = new LinearSystem(lhs, rhs)
 
-        then: 'an illegal argument exception should not be thrown.'
+        then: 'an illegal argument exception should not be thrown and the size should be correct.'
         notThrown IllegalArgumentException
+        assert ls.getSize() == 2
     }
 
     def 'When passing a null argument to Gaussian transform' () {
@@ -88,5 +121,25 @@ class LinearSystemSpec extends Specification {
         expect: 'the return of the equivalent upper triangular system'
         assert LinearSystem.gaussianTransform(ls).get().getLhs().getComponents() == transformedLhs.getComponents()
         assert LinearSystem.gaussianTransform(ls).get().getRhs().getComponents() == transformedRhs.getComponents()
+    }
+
+    def 'When passing compatible arguments to Gaussian transform which require pivoting' () {
+
+        given:
+        double a = 0.0
+        double b = 1.0
+        double c = 2.0
+        double f = 4.0
+        double g = 8.0
+        double h = 6.0
+        double i = 15.0
+        lhs = new Matrix([[a,f,h], [f,g,-f], [-c,h,c]])
+        rhs = new Vector([a,a,a])
+        ls = new LinearSystem(lhs, rhs)
+
+        expect: 'the return of the equivalent upper triangular system'
+        assert LinearSystem.gaussianTransform(ls).get().getLhs().getComponents() == [[f,a,a], [g,f,a], [h,-c,-i]]
+        assert LinearSystem.gaussianTransform(ls).get().getRhs().getComponents() == [a,a,a]
+        assert LinearSystem.gaussianTransform(ls).get().getPivot().getComponents() == [b,a,a]
     }
 }

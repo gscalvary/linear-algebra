@@ -409,4 +409,13 @@ class VectorSpec extends Specification {
         expect: 'a vector of the correct magnitude and direction to be returned'
         assert Vector.matrixMultiplication(vector, matrix).get() == resultantVector
     }
+
+    def 'When creating a zero filled Vector' () {
+
+        given:
+        double x0 = 0.0
+
+        expect: 'a vector of the correct size with zeroes in all components to be returned'
+        assert Vector.createZeroVector(3).get().getComponents() == [x0,x0,x0]
+    }
 }

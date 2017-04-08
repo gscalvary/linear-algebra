@@ -82,13 +82,14 @@ public class LinearSystem {
     }
 
     /**
-     * Compute the Gaussian transform of the given linear system.
+     * Compute the Gauss-Jordan transform of the given linear system.
+     * floating point operations: 2n^3
      * @param linearSystem
      * A linear system to be transformed
      * @return
-     * The equivalent upper triangular system.
+     * The linear system solution.
      */
-    public static Optional<LinearSystem> gaussianTransform(LinearSystem linearSystem) {
+    public static Optional<LinearSystem> gaussJordanTransform(LinearSystem linearSystem) {
 
         if (linearSystem == null) {
             return Optional.empty();
@@ -127,9 +128,14 @@ public class LinearSystem {
                 linearSystem.setPivot(newPivot);
             }
 
-            for (int j = i + 1; j < linearSystem.getSize(); j++) {
-                Double dividend = matrixColumn.get(j);
-                newTransformColumn.set(j, dividend / divisor * -1);
+            for (int j = 0; j < linearSystem.getSize(); j++) {
+                Double dividend = 1.0;
+                if (j == i) {
+                    newTransformColumn.set(j, dividend / divisor);
+                } else {
+                    dividend = matrixColumn.get(j);
+                    newTransformColumn.set(j, dividend / divisor * -1);
+                }
             }
 
             transform.get().getComponents().set(i, newTransformColumn);

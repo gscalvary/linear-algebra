@@ -97,13 +97,13 @@ class LinearSystemSpec extends Specification {
         assert ls.getSize() == 2
     }
 
-    def 'When passing a null argument to Gaussian transform' () {
+    def 'When passing a null argument to Gauss-Jordan transform' () {
 
         expect: 'the return of an empty optional'
-        assert LinearSystem.gaussianTransform(null) == Optional.empty()
+        assert LinearSystem.gaussJordanTransform(null) == Optional.empty()
     }
 
-    def 'When passing compatible arguments to Gaussian transform' () {
+    def 'When passing compatible arguments to Gauss-Jordan transform' () {
 
         given:
         double a = 0.0
@@ -111,19 +111,18 @@ class LinearSystemSpec extends Specification {
         double c = 2.0
         double d = 3.0
         double e = 7.0
-        double f = 4.0
         lhs = new Matrix([[b,d,b], [b,b,e], [c,e,b]])
         rhs = new Vector([-b,-e,e])
         ls = new LinearSystem(lhs, rhs)
-        def transformedLhs = new Matrix([[b,a,a], [b,-c,a], [c,b,c]])
-        def transformedRhs = new Vector([-b,-f,-f])
+        def transformedLhs = new Matrix([[b,a,a], [a,b,a], [a,a,b]])
+        def transformedRhs = new Vector([c,b,-c])
 
-        expect: 'the return of the equivalent upper triangular system'
-        assert LinearSystem.gaussianTransform(ls).get().getLhs().getComponents() == transformedLhs.getComponents()
-        assert LinearSystem.gaussianTransform(ls).get().getRhs().getComponents() == transformedRhs.getComponents()
+        expect: 'the return of the linear system solution'
+        assert LinearSystem.gaussJordanTransform(ls).get().getLhs().getComponents() == transformedLhs.getComponents()
+        assert LinearSystem.gaussJordanTransform(ls).get().getRhs().getComponents() == transformedRhs.getComponents()
     }
 
-    def 'When passing compatible arguments to Gaussian transform which require pivoting' () {
+    def 'When passing compatible arguments to Gauss-Jordan transform which require pivoting' () {
 
         given:
         double a = 0.0
@@ -132,14 +131,13 @@ class LinearSystemSpec extends Specification {
         double f = 4.0
         double g = 8.0
         double h = 6.0
-        double i = 15.0
         lhs = new Matrix([[a,f,h], [f,g,-f], [-c,h,c]])
         rhs = new Vector([a,a,a])
         ls = new LinearSystem(lhs, rhs)
 
-        expect: 'the return of the equivalent upper triangular system'
-        assert LinearSystem.gaussianTransform(ls).get().getLhs().getComponents() == [[f,a,a], [g,f,a], [h,-c,-i]]
-        assert LinearSystem.gaussianTransform(ls).get().getRhs().getComponents() == [a,a,a]
-        assert LinearSystem.gaussianTransform(ls).get().getPivot().getComponents() == [b,a,a]
+        expect: 'the return of the linear system solution'
+        assert LinearSystem.gaussJordanTransform(ls).get().getLhs().getComponents() == [[b, a, a], [a, b, a], [a, a, b]]
+        assert LinearSystem.gaussJordanTransform(ls).get().getRhs().getComponents() == [a, a, a]
+        assert LinearSystem.gaussJordanTransform(ls).get().getPivot().getComponents() == [b, a, a]
     }
 }

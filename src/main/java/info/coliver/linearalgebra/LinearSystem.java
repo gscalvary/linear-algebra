@@ -6,11 +6,11 @@ import java.util.Optional;
 public class LinearSystem {
 
     private Matrix lhs;
-    private Vector rhs;
+    private Matrix rhs;
     private Vector pivot;
     private int size;
 
-    LinearSystem (Matrix lhs, Vector rhs) {
+    LinearSystem (Matrix lhs, Matrix rhs) {
 
         if (rhs == null || lhs == null) {
             throw new IllegalArgumentException("Neither the right or left hand sides of the system may be null.");
@@ -20,7 +20,7 @@ public class LinearSystem {
             throw new IllegalArgumentException("The height and width of the right hand side of the system must be equal.");
         }
 
-        if (rhs.getComponents().size() != lhs.getComponents().size()) {
+        if (rhs.getComponents().get(0).size() != lhs.getComponents().size()) {
             throw new IllegalArgumentException("The height of both the right and left hand sides of the system must be equal.");
         }
 
@@ -32,7 +32,7 @@ public class LinearSystem {
         pivot.ifPresent(vector -> this.pivot = vector);
     }
 
-    LinearSystem (Matrix lhs, Vector rhs, Vector pivot) {
+    LinearSystem (Matrix lhs, Matrix rhs, Vector pivot) {
 
         if (rhs == null || lhs == null) {
             throw new IllegalArgumentException("Neither the right or left hand sides of the system may be null.");
@@ -42,11 +42,11 @@ public class LinearSystem {
             throw new IllegalArgumentException("The height and width of the right hand side of the system must be equal.");
         }
 
-        if (rhs.getComponents().size() != lhs.getComponents().size()) {
+        if (rhs.getComponents().get(0).size() != lhs.getComponents().size()) {
             throw new IllegalArgumentException("The height of both the right and left hand sides of the system must be equal.");
         }
 
-        if (rhs.getComponents().size() != pivot.getComponents().size()) {
+        if (rhs.getComponents().get(0).size() != pivot.getComponents().size()) {
             throw new IllegalArgumentException("The size of the pivot must equal the size of the system.");
         }
 
@@ -56,7 +56,7 @@ public class LinearSystem {
         this.size = lhs.getComponents().size();
     }
 
-    public Vector getRhs() {
+    public Matrix getRhs() {
         return rhs;
     }
 
@@ -96,7 +96,7 @@ public class LinearSystem {
         }
 
         Matrix transformedLhs = linearSystem.getLhs();
-        Vector transformedRhs = linearSystem.getRhs();
+        Matrix transformedRhs = linearSystem.getRhs();
 
         for (int i = 0; i < linearSystem.getSize(); i++ ) {
 
@@ -140,27 +140,20 @@ public class LinearSystem {
 
             transform.get().getComponents().set(i, newTransformColumn);
 
-            Optional<Matrix> stepIMatrix = Matrix.matrixMultiplication(transform.get(), transformedLhs);
+            Optional<Matrix> stepILhs = Matrix.matrixMultiplication(transform.get(), transformedLhs);
 
-            if (!stepIMatrix.isPresent()) {
+            Optional<Matrix> transposeTransform = Matrix.transpose(transform.get());
+            if (!transposeTransform.isPresent()) {
+                return Optional.empty();
+            }
+            Optional<Matrix> stepIRhs = permuteRhs(transformedRhs, transposeTransform.get());
+
+            if (!stepILhs.isPresent() || !stepIRhs.isPresent()) {
                 return Optional.empty();
             }
 
-            transformedLhs = stepIMatrix.get();
-
-            Optional<Matrix> transposedTransform = Matrix.transpose(transform.get());
-
-            if (!transposedTransform.isPresent()) {
-                return Optional.empty();
-            }
-
-            Optional<Vector> stepIVector = Vector.matrixMultiplication(transformedRhs, transposedTransform.get());
-
-            if (!stepIVector.isPresent()) {
-                return Optional.empty();
-            }
-
-            transformedRhs = stepIVector.get();
+            transformedLhs = stepILhs.get();
+            transformedRhs = stepIRhs.get();
         }
 
         return Optional.of(new LinearSystem(transformedLhs, transformedRhs, linearSystem.getPivot()));
@@ -191,7 +184,10 @@ public class LinearSystem {
 
                 // multiply the transformedLhs and the transformedRhs by the permutation matrix
                 Optional<Matrix> newLhs = Matrix.matrixMultiplication(permutation.get(), linearSystem.getLhs());
-                Optional<Vector> newRhs = Vector.matrixMultiplication(linearSystem.getRhs(), permutation.get());
+
+                // multiply each column of the transformedRhs by the permutation matrix
+                Optional<Matrix> newRhs = permuteRhs(linearSystem.getRhs(), permutation.get());
+
                 if (!newLhs.isPresent() || !newRhs.isPresent()) {
                     return Optional.empty();
                 }
@@ -206,5 +202,29 @@ public class LinearSystem {
         }
 
         return Optional.of(linearSystem);
+    }
+
+    private static Optional<Matrix> permuteRhs(Matrix rhs, Matrix permutation) {
+
+        if (rhs == null || permutation == null) {
+            return Optional.empty();
+        }
+
+        if (rhs.getComponents().get(0).size() != permutation.getComponents().size()) {
+            return Optional.empty();
+        }
+
+        List<List<Double>> rhsComponents = rhs.getComponents();
+
+        for (int k = 0; k < rhsComponents.size(); k++) {
+            Vector rhsVector = new Vector(rhsComponents.get(k));
+            Optional<Vector> newRhsVector = Vector.matrixMultiplication(rhsVector, permutation);
+            if (!newRhsVector.isPresent()) {
+                return Optional.empty();
+            }
+            rhsComponents.set(k, newRhsVector.get().getComponents());
+        }
+
+        return Optional.of(new Matrix(rhsComponents));
     }
 }
